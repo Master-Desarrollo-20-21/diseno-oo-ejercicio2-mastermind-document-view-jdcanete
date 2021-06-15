@@ -1,0 +1,208 @@
+@startuml mastermind
+
+package mastermind {
+
+    package models {}
+    package views {}
+
+    Mastermind  *--> models.Game
+    Mastermind *--> views.View
+
+    class Mastermind {
+        + play():void
+        + {static} main()
+    }
+}
+
+package utils {
+
+    utils.YesNoDialog ..> Console
+
+    class Console {
+        + readString():String
+        + write():void
+        + writeln():void
+    }
+
+    class utils.YesNoDialog {
+        + read(String):boolean
+    }
+}
+
+package models {
+    models.Game o--> "1..10" models.Result
+
+    Combination <|-- SecretCombination
+    Combination <|-- ProposedCombination
+
+    SecretCombination ..> ProposedCombination
+    SecretCombination ..> models.Result
+
+    models.Game *--> SecretCombination
+    models.Game o--> "1..10" ProposedCombination
+
+    Combination o--> "4" models.Color
+
+    class models.Game {
+        + reset():void
+        + addProposedCombination(ProposedCombination):void
+        + isOver():boolean
+        + isWinner():boolean
+        + getAttempts():int
+        + getResult(int):Result
+        + getProposedCombination(int):ProposedCombination
+    }
+
+    class SecretCombination {
+        + getResult():Result
+    }
+
+    class ProposedCombination {
+        + add(Color):void
+        + clear():void
+        + contains(Color):boolean
+        + getColors():Color[]
+    }
+
+    abstract class Combination {
+    }
+
+    class models.Result {
+        + isWinner():boolean
+        + getBlacks():int
+        + getWhites():int
+    }
+
+    enum models.Color {
+        RED
+        BLUE
+        YELLOW 
+        GREEN 
+        ORANGE 
+        PURPLE
+        NULL
+        + isNull():boolean
+    }
+}
+
+package views {
+    views.View ..> StartView
+    views.View *--> PlayView
+    views.View *--> ResumeView
+
+    views.View --> models.Game
+    PlayView --> models.Game
+    ResumeView --> models.Game
+
+    ResumeView ..> utils.YesNoDialog
+
+    PlayView *--> GameView
+    PlayView ..> WinnerLooserView
+    PlayView ..> ProposedCombinationView
+    PlayView ..> ProposedCombination
+
+    WinnerLooserView --> models.Game
+
+    ProposedCombinationView --> ProposedCombination
+    ProposedCombinationView ..> ErrorView
+    ProposedCombinationView ..> Error
+    ProposedCombinationView ..> models.Color
+    ProposedCombinationView ..> ColorView
+
+    ColorView --> models.Color
+
+    ErrorView --> Error
+    ErrorView ..> Console
+
+    GameView --> models.Game
+
+    GameView ..> SecretCombinationView
+    GameView ..> ResultView
+    GameView ..> ProposedCombinationView
+
+    ResultView --> models.Result
+
+    StartView ..> Message
+    ColorView ..> Message
+    SecretCombinationView ..> Message
+    ResultView ..> Message
+    ProposedCombinationView ..> Message
+    GameView ..> Message
+
+    ColorView ..> Console
+    ResultView ..> Console
+    SecretCombinationView ..> Console
+    ProposedCombinationView ..> Console
+    StartView ..> Console
+    GameView ..> Console
+
+    class views.View {
+        + interact():void
+    }
+
+    class StartView {
+        + write():void
+    }
+
+    class ResumeView {
+        + interact():void
+        + isResumed():boolean
+    }
+
+    class PlayView {
+        + interact():void
+    }
+
+    class WinnerLooserView {
+        + write():void
+    }
+
+    class GameView {
+        + write():void
+    }
+
+    class ProposedCombinationView {
+        + read():ProposedCombination
+        + write():void
+    }
+
+    class ColorView {
+        + {static} valueOf(char):Color
+        + write():void
+    }
+
+    class SecretCombinationView {
+        + write():void
+    }
+
+    class ResultView {
+        + write():void
+    }
+
+    class ErrorView {
+        + write():void
+    }
+
+    enum Error {
+        WRONG_LENGTH
+        WRONG_CHARACTERS
+        DUPLICATED
+        NULL
+        + isNull():boolean
+        + getMessage():String
+    }
+
+    enum Message {
+        TITLE
+        RESUME
+        WINNER
+        LOOSER
+        ATTEMPTS
+        RESULTS
+        PROPOSED_COMBINATION
+        SECRET_COMBINATION
+        + getMessage():String
+    }
+}
+
+@enduml
